@@ -204,7 +204,7 @@ export class MarketplaceLogic{
   
     if (this.state === "dialog_marketplace_sku_count") {
       this.context["sku_count"] = message;
-      return completeAnalysis();
+      return this.completeAnalysis();
     }
 
     if (this.state === "dialog_advertising_platforms") {
@@ -222,7 +222,7 @@ export class MarketplaceLogic{
         };
       } else {
         this.context["advertising_platforms"] = message;
-        return completeAnalysis();
+        return this.completeAnalysis();
       }
     }
 
@@ -238,7 +238,7 @@ export class MarketplaceLogic{
 
     if (this.state === "dialog_advertising_preferred_platforms") {
       this.context["preferred_platforms"] = message;
-      return completeAnalysis();
+      return this.completeAnalysis();
     }
 
     if (this.state === "dialog_audit_analytics_access") {
@@ -277,7 +277,7 @@ export class MarketplaceLogic{
 
     if (this.state === "dialog_audit_deadline") {
       this.context["audit_deadline"] = message;
-      return completeAnalysis();
+      return this.completeAnalysis();
     }
 
     if (this.state === "dialog_infographics_sources") {
@@ -316,7 +316,7 @@ export class MarketplaceLogic{
 
     if (this.state === "dialog_infographics_deadline") {
       this.context["infographics_deadline"] = message;
-      return completeAnalysis();
+      return this.completeAnalysis();
     }
 
     if (this.state === "dialog_rich_content_ideas") {
@@ -365,7 +365,7 @@ export class MarketplaceLogic{
 
     if (this.state === "dialog_rich_content_deadline") {
       this.context["rich_content_deadline"] = message;
-      return completeAnalysis();
+      return this.completeAnalysis();
     }
 
     if (this.state === "dialog_other_details") {
@@ -380,15 +380,16 @@ export class MarketplaceLogic{
 
     if (this.state === "dialog_other_top_product") {
       this.context["other_top_product"] = message;
-      return completeAnalysis();
+      return this.completeAnalysis();
     }
   }
 
   completeAnalysis() {
     this.state = "start";
+    const link = '<a href="https://go.1ps.ru/pr/?pg=new_request.account&fm_plan=set62" target="_blank">вот эту заявку</a>';
     return {
       response:
-        "Спасибо за информацию! Анализ и проработка уже выполняются. Если будут проблемы с входом в личный кабинет или вопросы по анализу сайта, смело звоните по номеру 8 (800) 500 89 91. На линии нет роботов, отвечают digital-эксперты.",
+        `Спасибо за информацию! Анализ и проработка уже выполняются. Если будут проблемы с входом в личный кабинет или вопросы по анализу сайта, смело звоните по номеру 8 (800) 500 89 91. На линии нет роботов, отвечают digital-эксперты. Вы должны заполнить ${link} и вам позвонит менеджер.`,
       quickReplies: ["Начать сначала"],
       state: this.state,
     };
