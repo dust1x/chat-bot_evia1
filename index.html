@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <script type="module" src="/bot_logic.js"></script>
+    <script type="module" src="./services/marketplace.js"></script>
+    <script src="./services/Deepseek-service.js"></script>
+    <link type="text/css" rel="stylesheet" href="style.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат-бот</title>
+  </head>
+  <body>
+    <!-- Видео на заднем фоне -->
+    <video id="video-background" autoplay muted loop>
+      <source src="resources/background-video.mp4" type="video/mp4"> <!-- Укажите путь к вашему видео здесь -->
+      Ваш браузер не поддерживает тег video.
+    </video>
+
+    <!-- Окно чата -->
+    <div id="chat-window">
+      <div id="chat-header">Чат с ботом</div>
+      <div id="chat-messages"></div>
+      <div id="quick-replies"></div>
+      <div id="chat-input">
+        <input type="text" id="user-input" placeholder="Введите сообщение..." />
+        <button id="send-button" onclick="sendMessage()"></button>
+        <button id="reset-button" onclick="resetChat()"></button>
+      </div>
+    </div>
+
+    <script type="module">
+      import {Bot} from '/bot_logic.js';
+      const botLogic = new Bot();
+
+      function initChat(){
+        const welcomeMessage = botLogic.getWelcomeMessage();
+        addMessage(welcomeMessage.response, "bot");
+        setQuickReplies(welcomeMessage.quickReplies || []);
+      }
+
+      window.resetChat = () => {
+        document.getElementById("chat-messages").innerHTML = "";
+        setQuickReplies([]);
+        botLogic.resetState();
+        initChat(); // Перезапуск чата
+      }
+
+      window.sendMessage = async (message) => {
+        const text = message || document.getElementById("user-input").value.trim();
+        if (!text) return;
+
+        addMessage(text, "user");
+        document.getElementById("user-input").value = "";
+
+        const botResponse = await botLogic.handleMessage(text);
+        addMessage(botResponse.response, "bot");
+        setQuickReplies(botResponse.quickReplies || []);
+      }
+
+      window.onload = () => {
+        initChat();
+      };
+    </script>
+
+    <script>
+      // Добавление сообщений в окно чата
+      function addMessage(text, sender) {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", sender);
+        messageElement.textContent = text;
+        document.getElementById("chat-messages").appendChild(messageElement);
+        // Прокрутка вниз
+        document.getElementById("chat-messages").scrollTop =
+        document.getElementById("chat-messages").scrollHeight;
+      }
+
+      // Управление полем ввода (включение/отключение)
+      function toggleInputField(disabled) {
+        const inputField = document.getElementById("user-input");
+        inputField.disabled = disabled; // Блокируем или разблокируем поле ввода
+      }
+
+      // Установка готовых ответов
+      function setQuickReplies(replies) {
+        const quickReplies = document.getElementById("quick-replies");
+        quickReplies.innerHTML = ""; // Очищаем предыдущие кнопки
+
+        if (replies.length > 0) {
+          replies.forEach((reply) => {
+            const button = document.createElement("button");
+            button.classList.add("reply-button");
+            button.textContent = reply;
+            button.onclick = () => sendMessage(reply); // Отправка сообщения при клике
+            quickReplies.appendChild(button);
+          });
+          toggleInputField(true); // Отключаем поле ввода
+        } 
+        else {
+          toggleInputField(false); // Включаем поле ввода
+        }
+      }
+      
+      // Обработка нажатия клавиши Enter
+      document.getElementById("user-input").addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.code === "NumpadEnter") {
+          event.preventDefault(); // Предотвращаем перенос строки
+          sendMessage();
+        }
+      });
+    </script>
+  </body>
+</html>
