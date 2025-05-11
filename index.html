@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="ru">
   <head>
+    <!-- Подключаем основной файл с логикой бота -->
     <script type="module" src="/bot_logic.js"></script>
+    <!-- Подключаем модуль для работы с маркетплейсами -->
     <script type="module" src="./services/marketplace.js"></script>
+    <!-- Подключаем файл стилей -->
     <link type="text/css" rel="stylesheet" href="style.css"/>
+    <!-- Подключаем шрифт Comfortaa -->
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+    <!-- Устанавливаем кодировку -->
     <meta charset="UTF-8">
+    <!-- Настройка для адаптивного дизайна -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Чат-бот</title>
 
@@ -13,16 +19,21 @@
   <body>
     <!-- Видео на заднем фоне -->
     <video id="video-background" autoplay muted loop>
-      <source src="resources/background-video.mp4" type="video/mp4"> <!-- Укажите путь к вашему видео здесь -->
+      <source src="resources/background-video.mp4" type="video/mp4">
       Ваш браузер не поддерживает тег video.
     </video>
 
-    <!-- Окно чата -->
+    <!-- Основное окно чата -->
     <div id="chat-window">
+      <!-- Заголовок чата -->
       <div id="chat-header">Чат с ботом</div>
+      <!-- Область для сообщений -->
       <div id="chat-messages"></div>
+      <!-- Индикатор набора текста -->
       <div id="typing-indicator" style="display:none;"></div>
+      <!-- Область для быстрых ответов -->
       <div id="quick-replies"></div>
+      <!-- Панель ввода сообщений -->
       <div id="chat-input">
         <input type="text" id="user-input" placeholder="Введите сообщение..." />
         <button id="send-button" onclick="sendMessage()"></button>
@@ -31,15 +42,19 @@
     </div>
 
     <script type="module">
+      // Импортируем класс бота
       import {Bot} from '/bot_logic.js';
+      // Создаем экземпляр бота
       const botLogic = new Bot();
 
+      // Функция инициализации чата
       function initChat(){
         const welcomeMessage = botLogic.getWelcomeMessage();
         addMessage(welcomeMessage.response, "bot");
         setQuickReplies(welcomeMessage.quickReplies || []);
       }
 
+      // Функция сброса чата
       window.resetChat = () => {
         document.getElementById("chat-messages").innerHTML = "";
         setQuickReplies([]);
@@ -47,6 +62,7 @@
         initChat(); // Перезапуск чата
       }
 
+      // Функция отправки сообщения
       window.sendMessage = async (message) => {
         const text = message || document.getElementById("user-input").value.trim();
         if (!text) return;
@@ -54,46 +70,48 @@
         addMessage(text, "user");
         document.getElementById("user-input").value = "";
 
-        // Добавляем облачко "бот думает" как сообщение
+        // Добавляем индикатор набора текста
         const typingBubble = addTypingMessage();
         const start = Date.now();
 
         const botResponse = await botLogic.handleMessage(text);
 
-        // Ждём, чтобы анимация длилась минимум 3 секунды
+        // Устанавливаем минимальную задержку для анимации
         const elapsed = Date.now() - start;
         const minDelay = 1500;
         if (elapsed < minDelay) {
           await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
         }
 
-        // Заменяем облачко на реальный ответ
+        // Заменяем индикатор набора на ответ бота
         typingBubble.classList.remove("typing-indicator");
         typingBubble.innerHTML = botResponse.response;
         setQuickReplies(botResponse.quickReplies || []);
       }
 
+      // Инициализация при загрузке страницы
       window.onload = () => {
         initChat();
 
-        // Анимация вращения reset-button по клику
+        // Добавляем анимацию вращения для кнопки сброса
         const resetBtn = document.getElementById("reset-button");
         if (resetBtn) {
           resetBtn.addEventListener("click", function() {
             this.classList.remove("rotate-once");
-            void this.offsetWidth; // reflow для перезапуска анимации
+            void this.offsetWidth; // Перезапуск анимации
             this.classList.add("rotate-once");
             setTimeout(() => this.classList.remove("rotate-once"), 500);
           });
         }
       };
 
-      // Анимация "бот думает"
+      // Функция показа индикатора набора текста
       function showTypingIndicator() {
         const indicator = document.getElementById("typing-indicator");
         indicator.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
         indicator.style.display = "block";
       }
+      // Функция скрытия индикатора набора текста
       function hideTypingIndicator() {
         const indicator = document.getElementById("typing-indicator");
         indicator.innerHTML = "";
@@ -102,19 +120,19 @@
     </script>
 
     <script>
-      // Добавление сообщений в окно чата с анимацией
+      // Функция добавления сообщения в чат
       function addMessage(text, sender) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message", sender);
         messageElement.textContent = text;
         document.getElementById("chat-messages").appendChild(messageElement);
-        // Прокрутка вниз
+        // Автоматическая прокрутка к последнему сообщению
         document.getElementById("chat-messages").scrollTop =
         document.getElementById("chat-messages").scrollHeight;
         return messageElement;
       }
 
-      // Добавление облачка "бот думает"
+      // Функция добавления индикатора набора текста
       function addTypingMessage() {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message", "bot", "typing-indicator");
@@ -125,13 +143,13 @@
         return messageElement;
       }
 
-      // Управление полем ввода (включение/отключение)
+      // Функция управления полем ввода
       function toggleInputField(disabled) {
         const inputField = document.getElementById("user-input");
         inputField.disabled = false; // Поле ввода всегда активно
       }
 
-      // Установка готовых ответов
+      // Функция установки быстрых ответов
       function setQuickReplies(replies) {
         const quickReplies = document.getElementById("quick-replies");
         quickReplies.innerHTML = ""; // Очищаем предыдущие кнопки
@@ -147,7 +165,7 @@
         }
       }
       
-      // Обработка нажатия клавиши Enter
+      // Обработчик нажатия клавиши Enter
       document.getElementById("user-input").addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.code === "NumpadEnter") {
           event.preventDefault(); // Предотвращаем перенос строки

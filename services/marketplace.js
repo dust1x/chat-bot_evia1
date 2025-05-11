@@ -63,7 +63,6 @@ export class MarketplaceLogic{
 
   async handleMarketplaceDetails(message) {
     if (this.state === "dialog_marketplace_link") {
-      // Проверяем, начинается ли сообщение с "https"
       if (!message.startsWith("https")) {
         return {
           response: "Пожалуйста, проверьте, что вы отправили корректную ссылку на ваш магазин. Она должна начинаться с 'https'. Попробуйте снова.",
@@ -73,7 +72,6 @@ export class MarketplaceLogic{
       }
   
       try {
-        // Проверяем работоспособность сайта
         const isWebsiteAvailable = await toolLogic.checkWebsiteAvailability(message);
   
         if (isWebsiteAvailable) {
@@ -373,7 +371,7 @@ export class MarketplaceLogic{
       this.state = "dialog_other_top_product";
       return {
         response: `${message} — это интересная ниша. А какой основной товар или группа товаров приносит вам наибольший доход?`,
-        quickReplies: [], // Здесь нет быстрых ответов
+        quickReplies: [],
         state: this.state,
       };
     }

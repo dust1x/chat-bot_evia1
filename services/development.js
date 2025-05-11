@@ -1,5 +1,8 @@
+// Класс для обработки логики разработки сайтов
 export class DevelopmentLogic {
+    // Начальное состояние диалога
     state = "start";
+    // Контекст для хранения данных диалога
     context = {};
   
     /**
@@ -16,36 +19,47 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     async handleMessage(message) {
+      // Обработка начального состояния диалога
       if (this.state === "dialog_development_start") {
         return this.handleDevelopmentChoice(message);
       }
+      // Обработка планов по продвижению
       if (this.state === "dialog_development_promotion_plans") {
         return this.handlePromotionPlans(message);
       }
+      // Обработка структуры сайта
       if (this.state === "dialog_development_structure") {
         return this.handleWebsiteStructure(message);
       }
+      // Обработка оплаты на сайте
       if (this.state === "dialog_development_payment") {
         return this.handlePaymentOptions(message);
       }
+      // Обработка существующего сайта
       if (this.state === "dialog_development_existing_site") {
         return this.handleExistingSite(message);
       }
+      // Обработка интеграций
       if (this.state === "dialog_development_integrations") {
         return this.handleIntegrations(message);
       }
+      // Обработка выбора CMS
       if (this.state === "dialog_development_cms") {
         return this.handleCMSChoice(message);
       }
+      // Обработка личного кабинета
       if (this.state === "dialog_development_personal_account") {
         return this.handlePersonalAccount(message);
       }
+      // Обработка примеров
       if (this.state === "dialog_development_examples") {
         return this.handleExamples(message);
       }
+      // Обработка основной цели
       if (this.state === "dialog_development_main_goal") {
         return this.handleMainGoal(message);
       }
+      // Обработка сроков
       if (this.state === "dialog_development_deadline") {
         return this.handleDeadline(message);
       }
@@ -78,6 +92,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleDevelopmentChoice(message) {
+      // Сохраняем выбранный тип разработки
       this.context["development_choice"] = message;
       this.state = "dialog_development_promotion_plans";
       return {
@@ -96,6 +111,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handlePromotionPlans(message) {
+      // Сохраняем планы по продвижению
       this.context["promotion_plans"] = message;
       this.state = "dialog_development_structure";
       return {
@@ -119,6 +135,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleWebsiteStructure(message) {
+      // Сохраняем структуру сайта
       this.context["website_structure"] = message;
       this.state = "dialog_development_payment";
       return {
@@ -134,6 +151,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handlePaymentOptions(message) {
+      // Сохраняем информацию об оплате
       this.context["payment_options"] = message;
       this.state = "dialog_development_existing_site";
       return {
@@ -152,6 +170,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleExistingSite(message) {
+      // Сохраняем информацию о существующем сайте
       this.context["existing_site"] = message;
       this.state = "dialog_development_integrations";
       return {
@@ -178,6 +197,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleIntegrations(message) {
+      // Сохраняем выбранные интеграции
       this.context["integrations"] = message;
       this.state = "dialog_development_cms";
       return {
@@ -193,6 +213,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleCMSChoice(message) {
+      // Сохраняем выбранную CMS
       this.context["cms_choice"] = message;
       this.state = "dialog_development_personal_account";
       return {
@@ -211,6 +232,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handlePersonalAccount(message) {
+      // Сохраняем информацию о личном кабинете
       this.context["personal_account"] = message;
       this.state = "dialog_development_examples";
       return {
@@ -229,6 +251,7 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleExamples(message) {
+      // Сохраняем информацию о примерах
       this.context["examples"] = message;
       this.state = "dialog_development_main_goal";
       return {
@@ -252,10 +275,11 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleMainGoal(message) {
+      // Сохраняем основную цель
       this.context["main_goal"] = message;
       this.state = "dialog_development_deadline";
       return {
-        response: `Поняла! Цель "${message}" — это основной фокус для нас. Теперь уточним сроки.`,
+        response: "Поняла! Мы учтем эту цель при разработке. В какие сроки хотите уложиться?",
         quickReplies: [],
         state: this.state,
       };
@@ -267,11 +291,11 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleDeadline(message) {
+      // Сохраняем информацию о сроках
       this.context["deadline"] = message;
       this.state = "start";
       return {
-        response:
-          "Поняла! Мы учтем ваши сроки. Спасибо за подробные ответы! Теперь мы можем приступить к работе. Если будут проблемы с входом в личный кабинет или вопросы по анализу сайта, смело звоните по номеру 8 (800) 500 89 91. На линии нет роботов, отвечают digital-эксперты. Вам нужно заполнить <a href=\"https://go.1ps.ru/pr/?pg=new_request.account&fm_plan=set62\" target=\"_blank\">вот эту заявку</a> и вам позвонит менеджер.",
+        response: "Спасибо за информацию! Ваша заявка уже выполняется. Если будут проблемы с входом в личный кабинет или вопросы по анализу сайта, смело звоните по номеру 8 (800) 500 89 91. На линии нет роботов, отвечают digital-эксперты. Вам нужно заполнить <a href=\"https://go.1ps.ru/pr/?pg=new_request.account&fm_plan=set62\" target=\"_blank\">вот эту заявку</a> и вам позвонит менеджер.",
         quickReplies: ["Начать сначала"],
         state: this.state,
       };

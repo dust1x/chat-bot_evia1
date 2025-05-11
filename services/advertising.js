@@ -1,5 +1,8 @@
+// Класс для обработки логики рекламных услуг
 export class AdvertisingLogic {
+    // Начальное состояние диалога
     state = "start";
+    // Контекст для хранения данных диалога
     context = {};
   
     /**
@@ -16,42 +19,55 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     async handleMessage(message) {
+      // Обработка начального состояния диалога
       if (this.state === "dialog_advertising_start") {
         return this.handleAdvertisingType(message);
       }
+      // Обработка целей рекламы
       if (this.state === "dialog_advertising_goals") {
         return this.handleBusinessGoals(message);
       }
+      // Обработка проблем с рекламой
       if (this.state === "dialog_advertising_problems") {
         return this.handleMainProblem(message);
       }
+      // Обработка выбора рекламных каналов
       if (this.state === "dialog_advertising_channels") {
         return this.handleAdvertisingChannels(message);
       }
+      // Обработка приоритетов в рекламе
       if (this.state === "dialog_advertising_priorities") {
         return this.handlePriorities(message);
       }
+      // Обработка географического охвата
       if (this.state === "dialog_advertising_geography") {
         return this.handleGeography(message);
       }
+      // Обработка целевой аудитории
       if (this.state === "dialog_advertising_audience") {
         return this.handleAudience(message);
       }
+      // Обработка сезонности спроса
       if (this.state === "dialog_advertising_seasonality") {
         return this.handleSeasonality(message);
       }
+      // Обработка ожидаемых результатов
       if (this.state === "dialog_advertising_expectations") {
         return this.handleExpectations(message);
       }
+      // Обработка сроков реализации
       if (this.state === "dialog_advertising_deadline") {
         return this.handleDeadline(message);
       }
+      // Обработка дополнительных требований
       if (this.state === "dialog_advertising_requirements") {
         return this.handleRequirements(message);
       }
+      // Обработка бюджета
       if (this.state === "dialog_advertising_budget") {
         return this.handleBudget(message);
       }
+      // Обработка необходимых документов
       if (this.state === "dialog_advertising_documents") {
         return this.handleDocuments(message);
       }
@@ -84,6 +100,7 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleAdvertisingType(message) {
+      // Сохраняем выбранный тип рекламы
       this.context["advertising_type"] = message;
       this.state = "dialog_advertising_goals";
       return {
@@ -106,6 +123,7 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleBusinessGoals(message) {
+      // Сохраняем выбранные цели
       this.context["business_goal"] = message;
       this.state = "dialog_advertising_problems";
       return {
@@ -127,6 +145,7 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleMainProblem(message) {
+      // Сохраняем указанную проблему
       this.context["main_problem"] = message;
       this.state = "dialog_advertising_channels";
       return {
@@ -152,6 +171,7 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleAdvertisingChannels(message) {
+      // Сохраняем выбранные каналы рекламы
       this.context["advertising_channels"] = message;
       this.state = "dialog_advertising_priorities";
       return {
@@ -169,6 +189,7 @@ export class AdvertisingLogic {
      */
     handlePriorities(message) {
       if (message === "Да") {
+        // Сохраняем информацию о предыдущем опыте
         this.context["previous_advertising"] = true;
         this.state = "dialog_advertising_geography";
         return {
@@ -183,6 +204,7 @@ export class AdvertisingLogic {
           state: this.state,
         };
       } else {
+        // Отмечаем отсутствие предыдущего опыта
         this.context["previous_advertising"] = false;
         this.state = "dialog_advertising_geography";
         return {
@@ -205,6 +227,7 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleGeography(message) {
+      // Сохраняем информацию о географическом охвате
       this.context["geography"] = message;
       this.state = "dialog_advertising_audience";
       return {
@@ -221,6 +244,7 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleAudience(message) {
+      // Сохраняем информацию о целевой аудитории
       this.context["audience"] = message;
       this.state = "dialog_advertising_seasonality";
       return {
@@ -237,6 +261,7 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleSeasonality(message) {
+      // Сохраняем информацию о сезонности
       this.context["seasonality"] = message;
       this.state = "dialog_advertising_expectations";
       return {
@@ -251,84 +276,104 @@ export class AdvertisingLogic {
         state: this.state,
       };
     }
-  
+
     /**
-     * Обработка ожиданий
+     * Обработка ожидаемых результатов
      * @param {string} message - Сообщение пользователя
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleExpectations(message) {
+      // Сохраняем ожидаемые результаты
       this.context["expectations"] = message;
       this.state = "dialog_advertising_deadline";
       return {
-        response:
-          "Поняла! Мы учтем ваши ожидания. В какие сроки ожидаете эти результаты? Например:",
-        quickReplies: ["Через месяц", "Через три месяца", "Другое"],
+        response: "Поняла! Мы учтем ваши ожидания при разработке стратегии. В какие сроки хотите уложиться?",
+        quickReplies: [],
         state: this.state,
       };
     }
-  
+
     /**
-     * Обработка сроков
+     * Обработка сроков реализации
      * @param {string} message - Сообщение пользователя
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleDeadline(message) {
+      // Сохраняем информацию о сроках
       this.context["deadline"] = message;
       this.state = "dialog_advertising_requirements";
       return {
-        response:
-          "Поняла! Мы учтем ваши сроки. Есть ли какие-то требования к нам, которые мы должны учесть при подготовке коммерческого предложения?",
-        quickReplies: [],
+        response: "Спасибо! Есть ли у вас какие-то особые требования к рекламе? Например:",
+        quickReplies: [
+          "Строгое соблюдение брендбука",
+          "Особые ограничения по контенту",
+          "Специфические требования к аудитории",
+          "Нет особых требований",
+        ],
         state: this.state,
       };
     }
-  
+
     /**
-     * Обработка требований
+     * Обработка дополнительных требований
      * @param {string} message - Сообщение пользователя
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleRequirements(message) {
+      // Сохраняем дополнительные требования
       this.context["requirements"] = message;
       this.state = "dialog_advertising_budget";
       return {
-        response:
-          "Поняла! Мы учтем это при подготовке КП. На какой рекламный бюджет рассчитываете? Сколько клиентов в месяц и по какой стоимости хотите привлечь?",
+        response: "Поняла! Мы учтем ваши требования. Какой бюджет вы планируете на рекламу?",
         quickReplies: [],
         state: this.state,
       };
     }
-  
+
     /**
      * Обработка бюджета
      * @param {string} message - Сообщение пользователя
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleBudget(message) {
+      // Сохраняем информацию о бюджете
       this.context["budget"] = message;
       this.state = "dialog_advertising_documents";
       return {
-        response:
-          "Поняла! Мы учтем ваш бюджет. У вас есть все необходимые документы для рекламы? Например, ссылки на лицензии/сертификаты, сертификат соответствия, отказное письмо и т.д.?",
-        quickReplies: ["Да", "Нет"],
+        response: "Спасибо! Какие документы у вас есть для запуска рекламы? Например:",
+        quickReplies: [
+          "Есть все необходимые документы",
+          "Нужна помощь с документами",
+          "Другое",
+        ],
         state: this.state,
       };
     }
-  
+
     /**
-     * Обработка документов
+     * Обработка необходимых документов
      * @param {string} message - Сообщение пользователя
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleDocuments(message) {
+      // Сохраняем информацию о документах
       this.context["documents"] = message;
+      // Завершаем диалог и формируем итоговый ответ
+      return this.completeAnalysis();
+    }
+
+    /**
+     * Завершение анализа и формирование итогового ответа
+     * @returns {object} - Итоговый ответ бота
+     */
+    completeAnalysis() {
       this.state = "start";
+      const link = '<a href="https://go.1ps.ru/pr/?pg=new_request.account&fm_plan=set62" target="_blank">вот эту заявку</a>';
       return {
         response:
-          "Поняла! Мы учтем это при подготовке материалов. Спасибо за подробные ответы! Теперь мы можем приступить к работе. Если будут проблемы с входом в личный кабинет или вопросы по анализу сайта, смело звоните по номеру 8 (800) 500 89 91. На линии нет роботов, отвечают digital-эксперты. Вам нужно заполнить <a href=\"https://go.1ps.ru/pr/?pg=new_request.account&fm_plan=set62\" target=\"_blank\">вот эту заявку</a> и вам позвонит менеджер.",
+          `Спасибо за информацию! Анализ и проработка уже выполняются. Если будут проблемы с входом в личный кабинет или вопросы по анализу сайта, смело звоните по номеру 8 (800) 500 89 91. На линии нет роботов, отвечают digital-эксперты. Вы должны заполнить ${link} и вам позвонит менеджер.`,
         quickReplies: ["Начать сначала"],
         state: this.state,
       };
     }
-  }
+}

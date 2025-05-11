@@ -1,7 +1,10 @@
+// Класс для обработки логики копирайтинга
 export class CopywritingLogic {
   constructor() {
-    this.state = "start"; // Начальное состояние
-    this.context = {};    // Контекст для хранения данных пользователя
+    // Инициализация начального состояния
+    this.state = "start";
+    // Контекст для хранения данных диалога
+    this.context = {};
   }
 
   /**
@@ -18,24 +21,31 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   async handleMessage(message) {
+    // Обработка начального состояния диалога
     if (this.state === "dialog_copywriting_start") {
       return this.handleUniqueSellingPoint(message);
     }
+    // Обработка целей копирайтинга
     if (this.state === "dialog_copywriting_goals") {
       return this.handleCopywritingGoals(message);
     }
+    // Обработка бюджета
     if (this.state === "dialog_copywriting_budget") {
       return this.handleCopywritingBudget(message);
     }
+    // Обработка типа страницы
     if (this.state === "dialog_copywriting_page_type") {
       return this.handlePageType(message);
     }
+    // Обработка тона и стиля текста
     if (this.state === "dialog_copywriting_tone_style") {
       return this.handleToneStyle(message);
     }
+    // Обработка предпочтений по оптимизации
     if (this.state === "dialog_copywriting_optimization") {
       return this.handleOptimizationPreferences(message);
     }
+    // Обработка призыва к действию
     if (this.state === "dialog_copywriting_call_to_action") {
       return this.handleCallToAction(message);
     }
@@ -68,6 +78,7 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleUniqueSellingPoint(message) {
+    // Сохраняем информацию об УТП
     this.context["unique_selling_point"] = message;
     this.state = "dialog_copywriting_goals";
     return {
@@ -90,6 +101,7 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleCopywritingGoals(message) {
+    // Сохраняем выбранные цели
     this.context["copywriting_goals"] = message;
     this.state = "dialog_copywriting_budget";
     return {
@@ -106,6 +118,7 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleCopywritingBudget(message) {
+    // Сохраняем информацию о бюджете
     this.context["copywriting_budget"] = message;
     this.state = "dialog_copywriting_page_type";
     return {
@@ -131,6 +144,7 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handlePageType(message) {
+    // Сохраняем выбранный тип страницы
     this.context["page_type"] = message;
     this.state = "dialog_copywriting_tone_style";
     return {
@@ -147,6 +161,7 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleToneStyle(message) {
+    // Сохраняем выбранный тон и стиль
     this.context["tone_style"] = message;
     this.state = "dialog_copywriting_optimization";
     return {
@@ -163,6 +178,7 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleOptimizationPreferences(message) {
+    // Сохраняем предпочтения по оптимизации
     this.context["optimization_preferences"] = message;
     this.state = "dialog_copywriting_call_to_action";
     return {
@@ -185,6 +201,7 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleCallToAction(message) {
+    // Сохраняем выбранное действие
     this.context["call_to_action"] = message;
     this.state = "start";
     return {

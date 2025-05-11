@@ -1,5 +1,8 @@
+// Класс для обработки логики комплексного продвижения
 export class ComplexLogic {
+  // Начальное состояние диалога
   state = "start";
+  // Контекст для хранения данных диалога
   context = {};
 
   /**
@@ -16,36 +19,47 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   async handleMessage(message) {
+    // Обработка начального состояния диалога
     if (this.state === "dialog_complex_start") {
       return this.handleDirectionChoice(message);
     }
+    // Обработка целей бизнеса
     if (this.state === "dialog_complex_goals") {
       return this.handleBusinessGoals(message);
     }
+    // Обработка должности
     if (this.state === "dialog_complex_position") {
       return this.handlePosition(message);
     }
+    // Обработка лица, принимающего решения
     if (this.state === "dialog_complex_decision_maker") {
       return this.handleDecisionMaker(message);
     }
+    // Обработка приоритетных направлений
     if (this.state === "dialog_complex_priority_directions") {
       return this.handlePriorityDirections(message);
     }
+    // Обработка текущих каналов привлечения
     if (this.state === "dialog_complex_current_channels") {
       return this.handleCurrentChannels(message);
     }
+    // Обработка новых каналов привлечения
     if (this.state === "dialog_complex_new_channels") {
       return this.handleNewChannels(message);
     }
+    // Обработка сезонности спроса
     if (this.state === "dialog_complex_seasonality") {
       return this.handleSeasonality(message);
     }
+    // Обработка географии
     if (this.state === "dialog_complex_geography") {
       return this.handleGeography(message);
     }
+    // Обработка основной проблемы
     if (this.state === "dialog_complex_main_problem") {
       return this.handleMainProblem(message);
     }
+    // Обработка бюджета
     if (this.state === "dialog_complex_budget") {
       return this.handleBudget(message);
     }
@@ -84,6 +98,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleDirectionChoice(message) {
+    // Сохраняем выбранное направление
     this.context["direction"] = message;
     this.state = "dialog_complex_goals";
     return {
@@ -105,6 +120,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleBusinessGoals(message) {
+    // Сохраняем цели бизнеса
     this.context["business_goal"] = message;
     this.state = "dialog_complex_position";
     return {
@@ -120,6 +136,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handlePosition(message) {
+    // Сохраняем информацию о должности
     this.context["position"] = message;
     this.state = "dialog_complex_decision_maker";
     return {
@@ -136,6 +153,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleDecisionMaker(message) {
+    // Сохраняем информацию о лице, принимающем решения
     this.context["decision_maker"] = message;
     this.state = "dialog_complex_priority_directions";
     return {
@@ -158,6 +176,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handlePriorityDirections(message) {
+    // Сохраняем приоритетные направления
     this.context["priority_directions"] = message;
     this.state = "dialog_complex_current_channels";
     return {
@@ -174,6 +193,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleCurrentChannels(message) {
+    // Сохраняем информацию о текущих каналах
     this.context["current_channels"] = message;
     this.state = "dialog_complex_new_channels";
     return {
@@ -200,6 +220,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleNewChannels(message) {
+    // Сохраняем информацию о новых каналах
     this.context["new_channels"] = message;
     this.state = "dialog_complex_seasonality";
     return {
@@ -216,6 +237,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleSeasonality(message) {
+    // Сохраняем информацию о сезонности
     this.context["seasonality"] = message;
     this.state = "dialog_complex_geography";
     return {
@@ -234,6 +256,7 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleGeography(message) {
+    // Сохраняем информацию о географии
     this.context["geography"] = message;
     this.state = "dialog_complex_main_problem";
     return {
@@ -250,12 +273,18 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleMainProblem(message) {
+    // Сохраняем информацию об основной проблеме
     this.context["main_problem"] = message;
     this.state = "dialog_complex_budget";
     return {
       response:
         "Поняла! Мы учтем эту проблему при разработке стратегии. Теперь уточним бюджет.",
-      quickReplies: [],
+      quickReplies: [
+        "До 100 тыс. рублей",
+        "100-300 тыс. рублей",
+        "300-500 тыс. рублей",
+        "Более 500 тыс. рублей",
+      ],
       state: this.state,
     };
   }
@@ -266,11 +295,11 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   handleBudget(message) {
+    // Сохраняем информацию о бюджете
     this.context["budget"] = message;
     this.state = "start";
     return {
-      response:
-        "Поняла! Мы постараемся достичь этой стоимости заявки. Спасибо за подробные ответы! Теперь мы можем приступить к работе. Если будут проблемы с входом в личный кабинет или вопросы по анализу сайта, смело звоните по номеру 8 (800) 500 89 91. На линии нет роботов, отвечают digital-эксперты. Вам нужно заполнить <a href=\"https://go.1ps.ru/pr/?pg=new_request.account&fm_plan=set62\" target=\"_blank\">вот эту заявку</a> и вам позвонит менеджер.",
+      response: "Спасибо за информацию! Ваша заявка уже выполняется. Если будут проблемы с входом в личный кабинет или вопросы по анализу сайта, смело звоните по номеру 8 (800) 500 89 91. На линии нет роботов, отвечают digital-эксперты. Вам нужно заполнить <a href=\"https://go.1ps.ru/pr/?pg=new_request.account&fm_plan=set62\" target=\"_blank\">вот эту заявку</a> и вам позвонит менеджер.",
       quickReplies: ["Начать сначала"],
       state: this.state,
     };

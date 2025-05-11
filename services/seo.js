@@ -1,7 +1,12 @@
+// Импортируем логику для работы с инструментами
 import { ToolsLogic } from "/services/tools.js";
 const toolLogic = new ToolsLogic();
+
+// Класс для обработки логики SEO-продвижения
 export class SEOLogic {
+    // Начальное состояние диалога
     state = "start";
+    // Контекст для хранения данных диалога
     context = {};
   
     /**
@@ -18,15 +23,19 @@ export class SEOLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     async handleMessage(message) {
+      // Обработка начального состояния диалога
       if (this.state === "dialog_seo_start") {
         return this.handleWebsiteAddress(message);
       }
+      // Обработка анализа сайта
       if (this.state === "dialog_seo_analysis") {
         return this.handleAnalysis(message);
       }
+      // Обработка бюджета
       if (this.state === "dialog_seo_budget") {
         return this.handleBudget(message);
       }
+      // Обработка цели продвижения
       if (this.state === "dialog_seo_goal") {
         return this.handleGoal(message);
       }
@@ -59,6 +68,7 @@ export class SEOLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     async handleWebsiteAddress(message) {
+        // Проверяем, есть ли у пользователя сайт
         if (message.toLowerCase().includes("нет") || message.toLowerCase().includes("у меня нет сайта")) {
           this.state = "start";
           return {
@@ -69,7 +79,7 @@ export class SEOLogic {
           };
         }
       
-        // Проверяем, начинается ли сообщение с "https"
+        // Проверяем корректность ссылки
         if (!message.startsWith("https")) {
           return {
             response:
@@ -83,6 +93,7 @@ export class SEOLogic {
           // Проверяем работоспособность сайта
           const isWebsiteAvailable = await toolLogic.checkWebsiteAvailability(message);
           if (isWebsiteAvailable) {
+            // Сохраняем адрес сайта и переходим к анализу
             this.context["website_address"] = message;
             this.state = "dialog_seo_analysis";
             return {
@@ -109,12 +120,14 @@ export class SEOLogic {
           };
         }
       }
+
     /**
      * Обработка анализа сайта
      * @param {string} message - Сообщение пользователя
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleAnalysis(message) {
+      // Сохраняем предпочтения по инвестициям
       this.context["investment_preference"] = message;
       this.state = "dialog_seo_budget";
       return {
@@ -133,6 +146,7 @@ export class SEOLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleBudget(message) {
+      // Сохраняем информацию о бюджете
       this.context["budget"] = message;
       this.state = "dialog_seo_goal";
       return {
@@ -154,6 +168,7 @@ export class SEOLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleGoal(message) {
+      // Сохраняем цель продвижения
       this.context["goal"] = message;
       this.state = "start";
       return {
@@ -163,4 +178,4 @@ export class SEOLogic {
         state: this.state,
       };
     }
-  }
+}
