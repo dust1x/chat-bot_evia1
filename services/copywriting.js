@@ -1,4 +1,5 @@
 // Класс для обработки логики копирайтинга
+import { TextValidator } from "/services/text_validator.js";
 export class CopywritingLogic {
   constructor() {
     // Инициализация начального состояния
@@ -21,35 +22,114 @@ export class CopywritingLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   async handleMessage(message) {
-    // Обработка начального состояния диалога
-    if (this.state === "dialog_copywriting_start") {
-      return this.handleUniqueSellingPoint(message);
-    }
-    // Обработка целей копирайтинга
     if (this.state === "dialog_copywriting_goals") {
+      const quickReplies = [
+        "Информирование о компании/услугах/товарах",
+        "Увеличение продаж",
+        "Повышение узнаваемости бренда",
+        "Привлечение трафика на сайт",
+        "Другое",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handleCopywritingGoals(message);
     }
-    // Обработка бюджета
     if (this.state === "dialog_copywriting_budget") {
+      const quickReplies = [
+        "Есть возможность разово вложиться",
+        "Нужна рассрочка",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handleCopywritingBudget(message);
     }
-    // Обработка типа страницы
     if (this.state === "dialog_copywriting_page_type") {
+      const quickReplies = [
+        "Главная страница",
+        "Описание услуг/товаров",
+        "Landing page (целевая страница)",
+        "Блог/статья",
+        "SEO-текст",
+        "О компании",
+        "Контакты",
+        "Другое",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handlePageType(message);
     }
-    // Обработка тона и стиля текста
     if (this.state === "dialog_copywriting_tone_style") {
+      const quickReplies = ["Официальный", "Креативный", "Дружеский", "Другое"];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handleToneStyle(message);
     }
-    // Обработка предпочтений по оптимизации
     if (this.state === "dialog_copywriting_optimization") {
+      const quickReplies = ["Да", "Нет"];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handleOptimizationPreferences(message);
     }
-    // Обработка призыва к действию
     if (this.state === "dialog_copywriting_call_to_action") {
+      const quickReplies = [
+        "Оставить заявку",
+        "Перейти на другой раздел сайта",
+        "Купить товар",
+        "Подписаться на рассылку",
+        "Другое",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handleCallToAction(message);
     }
-
+    // Остальные шаги без quickReplies — обычная валидация
+    if (["dialog_copywriting_start"].includes(this.state)) {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
+      return this.handleUniqueSellingPoint(message);
+    }
     // Если состояние не определено, просим пользователя начать заново
     return {
       response: "Я не поняла ваш запрос. Пожалуйста, выберите один из предложенных вариантов.",
@@ -122,18 +202,8 @@ export class CopywritingLogic {
     this.context["copywriting_budget"] = message;
     this.state = "dialog_copywriting_page_type";
     return {
-      response:
-        "Хорошо. Для какой страницы вам нужен текст? Выберите один или несколько вариантов:",
-      quickReplies: [
-        "Главная страница",
-        "Описание услуг/товаров",
-        "Landing page (целевая страница)",
-        "Блог/статья",
-        "SEO-текст",
-        "О компании",
-        "Контакты",
-        "Другое",
-      ],
+      response: "Какой бюджет вы планируете на копирайтинг? (в рублях)",
+      quickReplies: ["Есть возможность разово вложиться", "Нужна рассрочка"],
       state: this.state,
     };
   }

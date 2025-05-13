@@ -14,6 +14,8 @@ import { EmailLogic } from '/services/email.js';
 import { AdvertisingLogic } from '/services/advertising.js';
 // Импортируем сервис Deepseek для обработки нестандартных запросов
 import { DeepseekService } from '/services/deepseek.js';
+// Импортируем валидатор текста
+import { TextValidator } from '/services/text_validator.js';
 
 // Создаем экземпляры всех сервисов
 const marketplaceLogic = new MarketplaceLogic();
@@ -64,17 +66,36 @@ export class Bot{
 
   // Основной метод обработки сообщений
   async handleMessage(message) {
-    // Приводим сообщение к нижнему регистру для удобства обработки
-    const lowerMessage = message.toLowerCase();
-    // Сохраняем сообщение пользователя в историю
-    this.dialogHistory.push({ user: message });
-    // Проверяем команду "начать сначала"
-    if (lowerMessage === "начать сначала") {
+    if (message.toLowerCase() === "начать сначала") {
       this.resetState();
       return this.getWelcomeMessage();
     }
-    // Обработка начального состояния
+    // Приводим сообщение к нижнему регистру для удобства обработки
+    const lowerMessage = message.toLowerCase();
+    
+    // Если стартовый шаг — пропускаем только готовые варианты
     if (this.state === "start") {
+      const quickReplies = [
+        "Маркетплейс",
+        "Комплекс",
+        "Копирайтинг",
+        "SEO",
+        "Email",
+        "Реклама",
+        "Разработка"
+      ];
+      const validationResult = TextValidator.validateText(message, quickReplies);
+      if (!validationResult.isValid) {
+        const response = {
+          response: validationResult.error,
+          quickReplies,
+          state: this.state
+        };
+        this.dialogHistory.push({ user: message, bot: response.response });
+        return response;
+      }
+      // Сохраняем сообщение пользователя в историю
+      this.dialogHistory.push({ user: message });
       const resp = await this.handleServiceChoice(message);
       this.dialogHistory[this.dialogHistory.length - 1].bot = resp.response;
       return resp;

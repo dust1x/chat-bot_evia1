@@ -1,4 +1,5 @@
 // Класс для обработки логики разработки сайтов
+import { TextValidator } from "/services/text_validator.js";
 export class DevelopmentLogic {
     // Начальное состояние диалога
     state = "start";
@@ -19,51 +20,165 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     async handleMessage(message) {
-      // Обработка начального состояния диалога
       if (this.state === "dialog_development_start") {
+        const quickReplies = ["Только разработка", "Комплексное решение: сайт + реклама"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleDevelopmentChoice(message);
       }
-      // Обработка планов по продвижению
       if (this.state === "dialog_development_promotion_plans") {
+        const quickReplies = [
+          "Через контекстную рекламу",
+          "Через социальные сети",
+          "Через SEO-продвижение",
+          "Другое",
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handlePromotionPlans(message);
       }
-      // Обработка структуры сайта
-      if (this.state === "dialog_development_structure") {
-        return this.handleWebsiteStructure(message);
-      }
-      // Обработка оплаты на сайте
       if (this.state === "dialog_development_payment") {
+        const quickReplies = ["Да", "Нет"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handlePaymentOptions(message);
       }
-      // Обработка существующего сайта
       if (this.state === "dialog_development_existing_site") {
+        const quickReplies = ["Да", "Нет"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleExistingSite(message);
       }
-      // Обработка интеграций
       if (this.state === "dialog_development_integrations") {
+        const quickReplies = [
+          "CRM/ERP",
+          "Бухгалтерская система",
+          "Управление складом",
+          "Сквозная аналитика",
+          "Расчет стоимости почтовых отправлений",
+          "1С-вариации",
+          "С другими сервисами",
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleIntegrations(message);
       }
-      // Обработка выбора CMS
       if (this.state === "dialog_development_cms") {
+        const quickReplies = ["Bitrix", "WordPress", "Tilda", "Не важно"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleCMSChoice(message);
       }
-      // Обработка личного кабинета
       if (this.state === "dialog_development_personal_account") {
+        const quickReplies = ["Да", "Нет"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handlePersonalAccount(message);
       }
-      // Обработка примеров
-      if (this.state === "dialog_development_examples") {
-        return this.handleExamples(message);
+      // Остальные шаги без quickReplies — обычная валидация
+      if (["dialog_development_structure", "dialog_development_examples", "dialog_development_main_goal", "dialog_development_deadline"].includes(this.state)) {
+        // Для dialog_development_deadline — только диапазон дат
+        if (this.state === "dialog_development_deadline") {
+          if (!/^\d{2}\.\d{2}\.\d{4}-\d{2}\.\d{2}\.\d{4}$/.test(message)) {
+            return {
+              response: "Пожалуйста, введите диапазон дат в формате дд.мм.гггг-дд.мм.гггг.",
+              quickReplies: [],
+              state: this.state,
+            };
+          }
+          return this.handleDeadline(message);
+        }
+        // Для dialog_development_structure — фильтрация с quickReplies
+        if (this.state === "dialog_development_structure") {
+          const quickReplies = [
+            "Иерархическая",
+            "Последовательная",
+            "Матричная",
+            "База данных"
+          ];
+          const validation = TextValidator.validateText(message, quickReplies);
+          if (!validation.isValid) {
+            return {
+              response: validation.error,
+              quickReplies,
+              state: this.state,
+            };
+          }
+          return this.handleWebsiteStructure(message);
+        }
+        // Для dialog_development_main_goal — фильтрация с quickReplies
+        if (this.state === "dialog_development_main_goal") {
+          const quickReplies = [
+            "Получение заявок",
+            "Информирование о компании",
+            "Заказ звонка",
+            "Другое"
+          ];
+          const validation = TextValidator.validateText(message, quickReplies);
+          if (!validation.isValid) {
+            return {
+              response: validation.error,
+              quickReplies,
+              state: this.state,
+            };
+          }
+          return this.handleMainGoal(message);
+        }
+        // Для остальных — обычная фильтрация
+        const validation = TextValidator.validateText(message);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies: [],
+            state: this.state,
+          };
+        }
+        if (this.state === "dialog_development_examples") {
+          return this.handleExamples(message);
+        }
       }
-      // Обработка основной цели
-      if (this.state === "dialog_development_main_goal") {
-        return this.handleMainGoal(message);
-      }
-      // Обработка сроков
-      if (this.state === "dialog_development_deadline") {
-        return this.handleDeadline(message);
-      }
-  
       // Если состояние не определено, просим пользователя начать заново
       return {
         response: "Я не поняла ваш запрос. Пожалуйста, выберите один из предложенных вариантов.",
@@ -92,17 +207,32 @@ export class DevelopmentLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     handleDevelopmentChoice(message) {
-      // Сохраняем выбранный тип разработки
       this.context["development_choice"] = message;
-      this.state = "dialog_development_promotion_plans";
-      return {
-        response:
-          message === "Только разработка"
-            ? "Поняла! Мы сфокусируемся на разработке сайта. Теперь уточним, как вы планируете продвигать созданный сайт."
-            : "Отлично! Мы учтем это при разработке стратегии. Теперь уточним структуру будущего сайта.",
-        quickReplies: [],
-        state: this.state,
-      };
+      if (message === "Комплексное решение: сайт + реклама") {
+        this.state = "dialog_development_promotion_plans";
+        return {
+          response: "Каким видом рекламы хотите продвигать сайт?",
+          quickReplies: [
+            "Через контекстную рекламу",
+            "Через социальные сети",
+            "Через SEO-продвижение",
+            "Другое"
+          ],
+          state: this.state,
+        };
+      } else {
+        this.state = "dialog_development_structure";
+        return {
+          response: "Теперь уточним структуру сайта.",
+          quickReplies: [
+            "Иерархическая",
+            "Последовательная",
+            "Матричная",
+            "База данных"
+          ],
+          state: this.state,
+        };
+      }
     }
   
     /**
@@ -120,10 +250,10 @@ export class DevelopmentLogic {
             ? "Поняла! Если понадобится помощь с продвижением, мы сможем предложить вам подходящие решения. Теперь уточним структуру сайта."
             : "Отлично! Мы учтем эти каналы при разработке. Теперь уточним структуру сайта.",
         quickReplies: [
-          "Через контекстную рекламу",
-          "Через социальные сети",
-          "Через SEO-продвижение",
-          "Другое",
+          "Иерархическая",
+          "Последовательная",
+          "Матричная",
+          "База данных"
         ],
         state: this.state,
       };

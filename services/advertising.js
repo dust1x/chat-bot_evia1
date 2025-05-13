@@ -1,4 +1,5 @@
 // Класс для обработки логики рекламных услуг
+import { TextValidator } from "/services/text_validator.js";
 export class AdvertisingLogic {
     // Начальное состояние диалога
     state = "start";
@@ -19,59 +20,198 @@ export class AdvertisingLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     async handleMessage(message) {
-      // Обработка начального состояния диалога
       if (this.state === "dialog_advertising_start") {
+        const quickReplies = ["Конкретная реклама", "Комплексное решение"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleAdvertisingType(message);
       }
-      // Обработка целей рекламы
       if (this.state === "dialog_advertising_goals") {
+        const quickReplies = [
+          "Увеличение заявок и продаж",
+          "Рост целевого трафика на сайт",
+          "Увеличение узнаваемости бренда",
+          "Всё вышеперечисленное",
+          "Другое",
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleBusinessGoals(message);
       }
-      // Обработка проблем с рекламой
       if (this.state === "dialog_advertising_problems") {
+        const quickReplies = [
+          "Низкая конверсия",
+          "Мало заявок",
+          "Высокая стоимость привлечения клиентов",
+          "Другое",
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleMainProblem(message);
       }
-      // Обработка выбора рекламных каналов
       if (this.state === "dialog_advertising_channels") {
+        const quickReplies = [
+          "Контекстная реклама",
+          "Программатик",
+          "Реклама в навигаторах и картах",
+          "Наружная цифровая реклама (билборды в МСК)",
+          "Реклама в соцсетях (ВК, ОК, Тг и др.)",
+          "Медийная реклама",
+          "Реклама в Яндекс.Промостраницах",
+          "Реклама товаров с маркетплейсов",
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleAdvertisingChannels(message);
       }
-      // Обработка приоритетов в рекламе
       if (this.state === "dialog_advertising_priorities") {
+        const quickReplies = ["Да", "Нет"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handlePriorities(message);
       }
-      // Обработка географического охвата
       if (this.state === "dialog_advertising_geography") {
+        const quickReplies = [
+          "Продвижение конкретных товаров",
+          "Брендирование компании",
+          "Привлечение подписчиков в соцсетях",
+          "Другое",
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleGeography(message);
       }
-      // Обработка целевой аудитории
       if (this.state === "dialog_advertising_audience") {
+        const quickReplies = ["Физические лица", "Юридические лица", "Другое"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleAudience(message);
       }
-      // Обработка сезонности спроса
       if (this.state === "dialog_advertising_seasonality") {
+        const quickReplies = ["Да", "Нет"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleSeasonality(message);
       }
-      // Обработка ожидаемых результатов
       if (this.state === "dialog_advertising_expectations") {
+        const quickReplies = [
+          "Увеличить продажи на 20%",
+          "Получить 100 новых клиентов в месяц",
+          "Снизить стоимость привлечения клиента",
+          "Другое"
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleExpectations(message);
       }
-      // Обработка сроков реализации
       if (this.state === "dialog_advertising_deadline") {
+        // Разрешаем только диапазон дат в формате дд.мм.гггг-дд.мм.гггг
+        if (!/^\d{2}\.\d{2}\.\d{4}-\d{2}\.\d{2}\.\d{4}$/.test(message)) {
+          return {
+            response: "Пожалуйста, введите диапазон дат в формате дд.мм.гггг-дд.мм.гггг.",
+            quickReplies: [],
+            state: this.state,
+          };
+        }
         return this.handleDeadline(message);
       }
-      // Обработка дополнительных требований
       if (this.state === "dialog_advertising_requirements") {
+        const quickReplies = [
+          "Строгое соблюдение брендбука",
+          "Особые ограничения по контенту",
+          "Специфические требования к аудитории",
+          "Нет особых требований"
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleRequirements(message);
       }
-      // Обработка бюджета
       if (this.state === "dialog_advertising_budget") {
+        if (!/^\d+$/.test(message)) {
+          return {
+            response: "Пожалуйста, введите сумму бюджета только цифрами (в рублях).",
+            quickReplies: [],
+            state: this.state,
+          };
+        }
         return this.handleBudget(message);
       }
-      // Обработка необходимых документов
       if (this.state === "dialog_advertising_documents") {
+        const quickReplies = [
+          "Есть все необходимые документы",
+          "Нужна помощь с документами",
+          "Другое"
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleDocuments(message);
       }
-  
       // Если состояние не определено, просим пользователя начать заново
       return {
         response: "Я не поняла ваш запрос. Пожалуйста, выберите один из предложенных вариантов.",
@@ -324,7 +464,7 @@ export class AdvertisingLogic {
       this.context["requirements"] = message;
       this.state = "dialog_advertising_budget";
       return {
-        response: "Поняла! Мы учтем ваши требования. Какой бюджет вы планируете на рекламу?",
+        response: "Поняла! Мы учтем ваши требования. Какой бюджет вы планируете на рекламу? (в рублях)",
         quickReplies: [],
         state: this.state,
       };

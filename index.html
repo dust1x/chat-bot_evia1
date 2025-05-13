@@ -51,24 +51,30 @@
       function initChat(){
         const welcomeMessage = botLogic.getWelcomeMessage();
         addMessage(welcomeMessage.response, "bot");
-        setQuickReplies(welcomeMessage.quickReplies || []);
+        setQuickReplies(welcomeMessage.quickReplies || [], welcomeMessage.state);
       }
 
       // Функция сброса чата
       window.resetChat = () => {
         document.getElementById("chat-messages").innerHTML = "";
-        setQuickReplies([]);
+        setQuickReplies([], null);
         botLogic.resetState();
         initChat(); // Перезапуск чата
       }
 
       // Функция отправки сообщения
       window.sendMessage = async (message) => {
-        const text = message || document.getElementById("user-input").value.trim();
+        const inputField = document.getElementById("user-input");
+        const text = message || inputField.value.trim();
         if (!text) return;
 
+        // Если поле заблокировано, не отправлять ручной ввод
+        if (inputField.disabled && !message) {
+          return; // Игнорируем попытку отправки вручную
+        }
+
         addMessage(text, "user");
-        document.getElementById("user-input").value = "";
+        inputField.value = "";
 
         // Добавляем индикатор набора текста
         const typingBubble = addTypingMessage();
@@ -86,7 +92,7 @@
         // Заменяем индикатор набора на ответ бота
         typingBubble.classList.remove("typing-indicator");
         typingBubble.innerHTML = botResponse.response;
-        setQuickReplies(botResponse.quickReplies || []);
+        setQuickReplies(botResponse.quickReplies || [], botResponse.state);
       }
 
       // Инициализация при загрузке страницы
@@ -146,24 +152,214 @@
       // Функция управления полем ввода
       function toggleInputField(disabled) {
         const inputField = document.getElementById("user-input");
-        inputField.disabled = false; // Поле ввода всегда активно
+        inputField.disabled = disabled;
       }
 
+      // --- КАЛЕНДАРЬ ДЛЯ ВЫБОРА ДИАПАЗОНА ДАТ ---
+      let isDateRangeStep = false;
+      let calendarContainer = null;
+      let selectedDates = [];
+
+      // Функция для создания календаря
+      function showDateRangeCalendar() {
+        if (calendarContainer) return; // Уже открыт
+        calendarContainer = document.createElement('div');
+        calendarContainer.id = 'calendar-container';
+        calendarContainer.style.position = 'absolute';
+        calendarContainer.style.background = '#fff';
+        calendarContainer.style.border = '1px solid #ccc';
+        calendarContainer.style.padding = '10px';
+        calendarContainer.style.zIndex = 1000;
+        calendarContainer.style.top = '40%';
+        calendarContainer.style.left = '50%';
+        calendarContainer.style.transform = 'translate(-50%, 0)';
+        calendarContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        document.body.appendChild(calendarContainer);
+        renderCalendar(new Date());
+      }
+
+      // Функция для рендера календаря (только текущий месяц)
+      function renderCalendar(baseDate) {
+        calendarContainer.innerHTML = '';
+        const month = baseDate.getMonth();
+        const year = baseDate.getFullYear();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        // Заголовок
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.style.marginBottom = '8px';
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '<';
+        prevBtn.onclick = () => renderCalendar(new Date(year, month - 1, 1));
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = '>';
+        nextBtn.onclick = () => renderCalendar(new Date(year, month + 1, 1));
+        const title = document.createElement('span');
+        title.textContent = `${('0'+(month+1)).slice(-2)}.${year}`;
+        header.appendChild(prevBtn);
+        header.appendChild(title);
+        header.appendChild(nextBtn);
+        calendarContainer.appendChild(header);
+
+        // Дни недели
+        const daysRow = document.createElement('div');
+        daysRow.style.display = 'grid';
+        daysRow.style.gridTemplateColumns = 'repeat(7, 32px)';
+        daysRow.style.marginBottom = '4px';
+        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => {
+          const el = document.createElement('div');
+          el.textContent = d;
+          el.style.textAlign = 'center';
+          el.style.fontWeight = 'bold';
+          daysRow.appendChild(el);
+        });
+        calendarContainer.appendChild(daysRow);
+
+        // Сетка дней
+        const grid = document.createElement('div');
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(7, 32px)';
+        grid.style.gap = '2px';
+        let dayNum = 1;
+        for (let i = 0; i < 42; i++) {
+          const cell = document.createElement('button');
+          cell.style.height = '32px';
+          cell.style.width = '32px';
+          cell.style.border = 'none';
+          cell.style.background = '#f7f7f7';
+          cell.style.cursor = 'pointer';
+          cell.style.borderRadius = '4px';
+          cell.style.fontWeight = 'normal';
+          if (i >= startDay && dayNum <= daysInMonth) {
+            const date = new Date(year, month, dayNum);
+            cell.textContent = dayNum;
+            // Запрет выбора дат меньше сегодняшней
+            if (date < today) {
+              cell.disabled = true;
+              cell.style.background = '#eee';
+              cell.style.cursor = 'not-allowed';
+            } else {
+              cell.onclick = () => selectDate(date);
+            }
+            // Подсветка выбранных дат
+            if (selectedDates.length > 0) {
+              const [start, end] = selectedDates;
+              if (start && isSameDay(date, start)) {
+                cell.style.background = '#b3e5fc';
+                cell.style.fontWeight = 'bold';
+              }
+              if (end && isSameDay(date, end)) {
+                cell.style.background = '#81d4fa';
+                cell.style.fontWeight = 'bold';
+              }
+              if (start && end && date > start && date < end) {
+                cell.style.background = '#e1f5fe';
+              }
+            }
+            dayNum++;
+          } else {
+            cell.disabled = true;
+            cell.style.background = 'transparent';
+          }
+          grid.appendChild(cell);
+        }
+        calendarContainer.appendChild(grid);
+      }
+
+      function isSameDay(d1, d2) {
+        return d1 && d2 && d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+      }
+
+      function selectDate(date) {
+        if (selectedDates.length === 0) {
+          selectedDates = [date];
+        } else if (selectedDates.length === 1) {
+          if (date < selectedDates[0]) {
+            selectedDates = [date, selectedDates[0]];
+          } else {
+            selectedDates.push(date);
+          }
+        } else {
+          selectedDates = [date];
+        }
+        if (selectedDates.length === 2) {
+          // Автоматически вставить диапазон в поле ввода
+          const input = document.getElementById('user-input');
+          input.value = `${formatDate(selectedDates[0])}-${formatDate(selectedDates[1])}`;
+        }
+        renderCalendar(selectedDates[0]);
+      }
+
+      function formatDate(date) {
+        return ('0'+date.getDate()).slice(-2)+'.'+('0'+(date.getMonth()+1)).slice(-2)+'.'+date.getFullYear();
+      }
+
+      function hideCalendar() {
+        if (calendarContainer) {
+          document.body.removeChild(calendarContainer);
+          calendarContainer = null;
+          selectedDates = [];
+        }
+      }
+
+      // --- КОНЕЦ КАЛЕНДАРЯ ---
+
       // Функция установки быстрых ответов
-      function setQuickReplies(replies) {
+      function setQuickReplies(replies, state) {
         const quickReplies = document.getElementById("quick-replies");
         quickReplies.innerHTML = ""; // Очищаем предыдущие кнопки
+
+        let onlyNumbers = false;
+        if (replies.length > 0 && replies.every(r => /^\d+$/.test(r.trim()))) {
+          onlyNumbers = true;
+        }
+
+        // Блокируем поле, если development-сценарий, кроме шага сроков
+        let devMode = state && state.startsWith("dialog_development_");
+        let allowInput = state === "dialog_development_deadline";
+        toggleInputField(devMode && !allowInput ? true : onlyNumbers);
+
+        // --- Календарь: если есть специальный маркер или вопрос про сроки ---
+        isDateRangeStep = false;
+        hideCalendar();
+        const lastBotMsg = document.querySelector('.message.bot:last-child');
+        if (replies.includes('calendar-range') || (lastBotMsg && /сроки|какие сроки|в какие сроки/i.test(lastBotMsg.textContent))) {
+          isDateRangeStep = true;
+          showDateRangeCalendar();
+        }
 
         if (replies.length > 0) {
           replies.forEach((reply) => {
             const button = document.createElement("button");
             button.classList.add("reply-button");
             button.textContent = reply;
-            button.onclick = () => sendMessage(reply); // Отправка сообщения при клике
+            button.onclick = () => {
+              if (reply.toLowerCase() === "начать сначала") {
+                resetChat();
+              } else {
+                sendMessage(reply);
+              }
+            };
             quickReplies.appendChild(button);
           });
         }
       }
+
+      // Ограничение ручного ввода для шага с датами
+      document.getElementById("user-input").addEventListener("input", function(e) {
+        if (isDateRangeStep) {
+          this.value = this.value.replace(/[^0-9.\-]/g, '');
+        }
+      });
       
       // Обработчик нажатия клавиши Enter
       document.getElementById("user-input").addEventListener("keydown", (event) => {

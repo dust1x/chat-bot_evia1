@@ -1,4 +1,5 @@
 import { ToolsLogic } from "/services/tools.js";
+import { TextValidator } from "/services/text_validator.js";
 const toolLogic = new ToolsLogic();
 
 export class MarketplaceLogic{
@@ -22,8 +23,21 @@ export class MarketplaceLogic{
   }
 
   async handleMessage(message) {
+    if (message.toLowerCase() === "начать сначала") {
+      this.resetState();
+      return this.startDialog();
+    }
     console.log(this.state);
     if (this.state === "dialog_marketplace_analysis") {
+      const quickReplies = ["Да", "Нет"];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handleMarketplaceAnalysis(message);
     }
     if (this.state.startsWith("dialog_marketplace_")) {
@@ -37,6 +51,7 @@ export class MarketplaceLogic{
   }
 
   handleMarketplaceAnalysis(message) {
+    const quickReplies = ["Да", "Нет"];
     if (message === "Нет") {
       this.state = "start";
       return {
@@ -56,13 +71,20 @@ export class MarketplaceLogic{
     }
     return {
       response: "Пожалуйста, уточните, есть ли у вас магазин на маркетплейсе.",
-      quickReplies: ["Да", "Нет"],
+      quickReplies,
       state: this.state,
     };
   }
 
   async handleMarketplaceDetails(message) {
     if (this.state === "dialog_marketplace_link") {
+      if (!message || !message.trim()) {
+        return {
+          response: "Пожалуйста, введите ссылку на ваш магазин.",
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       if (!message.startsWith("https")) {
         return {
           response: "Пожалуйста, проверьте, что вы отправили корректную ссылку на ваш магазин. Она должна начинаться с 'https'. Попробуйте снова.",
@@ -111,6 +133,23 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_marketplace_category") {
+      const quickReplies = [
+        "Одежда и аксессуары",
+        "Электроника и гаджеты",
+        "Товары для дома",
+        "Красота и здоровье",
+        "Детские товары",
+        "Продукты питания",
+        "Другое",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       this.context["category"] = message;
       this.state = "dialog_marketplace_top_product";
       return {
@@ -121,6 +160,14 @@ export class MarketplaceLogic{
     }
   
     if (this.state === "dialog_marketplace_top_product") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["top_product"] = message;
       this.state = "dialog_marketplace_service_choice";
       return {
@@ -139,6 +186,23 @@ export class MarketplaceLogic{
     }
   
     if (this.state === "dialog_marketplace_service_choice") {
+      const quickReplies = [
+        "Тексты",
+        "Оптимизация карточек",
+        "Реклама",
+        "Аудит",
+        "Инфографика",
+        "Рич-контент",
+        "Другое",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       switch (message) {
         case "Тексты":
         case "Оптимизация карточек":
@@ -201,8 +265,16 @@ export class MarketplaceLogic{
     }
   
     if (this.state === "dialog_marketplace_sku_count") {
-      this.context["sku_count"] = message;
-      return this.completeAnalysis();
+      if (/^\d+$/.test(message) && Number(message) > 0 && Number(message) < 1000000) {
+        this.context["sku_count"] = message;
+        return this.completeAnalysis();
+      } else {
+        return {
+          response: "Пожалуйста, введите корректное положительное число SKU (например, 10, 50, 100).",
+          quickReplies: ["10", "50", "100"],
+          state: this.state,
+        };
+      }
     }
 
     if (this.state === "dialog_advertising_platforms") {
@@ -264,6 +336,14 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_audit_metrics") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["audit_metrics"] = message;
       this.state = "dialog_audit_deadline";
       return {
@@ -274,6 +354,14 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_audit_deadline") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["audit_deadline"] = message;
       return this.completeAnalysis();
     }
@@ -303,6 +391,14 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_infographics_elements") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["infographics_elements"] = message;
       this.state = "dialog_infographics_deadline";
       return {
@@ -313,6 +409,14 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_infographics_deadline") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["infographics_deadline"] = message;
       return this.completeAnalysis();
     }
@@ -337,6 +441,14 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_rich_content_materials") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["rich_content_materials"] = message;
       this.state = "dialog_rich_content_usage";
       return {
@@ -352,6 +464,14 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_rich_content_usage") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["rich_content_usage"] = message;
       this.state = "dialog_rich_content_deadline";
       return {
@@ -362,11 +482,27 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_rich_content_deadline") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["rich_content_deadline"] = message;
       return this.completeAnalysis();
     }
 
     if (this.state === "dialog_other_details") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["other_details"] = message;
       this.state = "dialog_other_top_product";
       return {
@@ -377,6 +513,14 @@ export class MarketplaceLogic{
     }
 
     if (this.state === "dialog_other_top_product") {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
       this.context["other_top_product"] = message;
       return this.completeAnalysis();
     }

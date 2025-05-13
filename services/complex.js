@@ -1,4 +1,5 @@
 // Класс для обработки логики комплексного продвижения
+import { TextValidator } from "/services/text_validator.js";
 export class ComplexLogic {
   // Начальное состояние диалога
   state = "start";
@@ -19,13 +20,71 @@ export class ComplexLogic {
    * @returns {object} - Ответ бота и следующее состояние
    */
   async handleMessage(message) {
-    // Обработка начального состояния диалога
+    // Валидация для стартового шага
     if (this.state === "dialog_complex_start") {
+      const quickReplies = [
+        "Продвижение в маркетплейсах",
+        "Контекстная реклама",
+        "SEO-продвижение",
+        "SMM (социальные сети)",
+        "Другое",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handleDirectionChoice(message);
     }
-    // Обработка целей бизнеса
     if (this.state === "dialog_complex_goals") {
+      const quickReplies = [
+        "Увеличение заявок и продаж",
+        "Рост целевого трафика на сайт",
+        "Увеличение узнаваемости бренда",
+        "Всё вышеперечисленное",
+        "Другое",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
       return this.handleBusinessGoals(message);
+    }
+    if (this.state === "dialog_complex_priority_directions") {
+      const quickReplies = [
+        "Маркетплейсы",
+        "Контекстная реклама",
+        "SEO-продвижение",
+        "SMM (социальные сети)",
+        "Другое",
+      ];
+      const validation = TextValidator.validateText(message, quickReplies);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies,
+          state: this.state,
+        };
+      }
+      return this.handlePriorityDirections(message);
+    }
+    // Остальные шаги без quickReplies — обычная валидация
+    if (["dialog_complex_position", "dialog_complex_decision_maker", "dialog_complex_current_channels", "dialog_complex_new_channels", "dialog_complex_seasonality", "dialog_complex_geography", "dialog_complex_main_problem", "dialog_complex_budget"].includes(this.state)) {
+      const validation = TextValidator.validateText(message);
+      if (!validation.isValid) {
+        return {
+          response: validation.error,
+          quickReplies: [],
+          state: this.state,
+        };
+      }
     }
     // Обработка должности
     if (this.state === "dialog_complex_position") {
@@ -34,10 +93,6 @@ export class ComplexLogic {
     // Обработка лица, принимающего решения
     if (this.state === "dialog_complex_decision_maker") {
       return this.handleDecisionMaker(message);
-    }
-    // Обработка приоритетных направлений
-    if (this.state === "dialog_complex_priority_directions") {
-      return this.handlePriorityDirections(message);
     }
     // Обработка текущих каналов привлечения
     if (this.state === "dialog_complex_current_channels") {
@@ -278,7 +333,7 @@ export class ComplexLogic {
     this.state = "dialog_complex_budget";
     return {
       response:
-        "Поняла! Мы учтем эту проблему при разработке стратегии. Теперь уточним бюджет.",
+        "Поняла! Мы учтем эту проблему при разработке стратегии. Теперь уточним бюджет (в рублях).",
       quickReplies: [
         "До 100 тыс. рублей",
         "100-300 тыс. рублей",

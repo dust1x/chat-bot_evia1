@@ -1,4 +1,5 @@
 // Класс для обработки логики email-рассылок
+import { TextValidator } from "/services/text_validator.js";
 export class EmailLogic {
     // Начальное состояние диалога
     state = "start";
@@ -19,47 +20,37 @@ export class EmailLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     async handleMessage(message) {
-      // Обработка начального состояния диалога
+      // Фильтрация отключена для email.js, все ответы принимаются
       if (this.state === "dialog_email_start") {
         return this.handleServiceChoice(message);
       }
-      // Обработка наличия базы для рассылок
       if (this.state === "dialog_email_base") {
         return this.handleEmailBase(message);
       }
-      // Обработка наличия согласий на рассылки
       if (this.state === "dialog_email_consent") {
         return this.handleEmailConsent(message);
       }
-      // Обработка наличия политики конфиденциальности
       if (this.state === "dialog_email_privacy_policy") {
         return this.handlePrivacyPolicy(message);
       }
-      // Обработка выбора сервиса для рассылок
       if (this.state === "dialog_email_service") {
         return this.handleEmailService(message);
       }
-      // Обработка предыдущих результатов рассылок
       if (this.state === "dialog_email_previous_results") {
         return this.handlePreviousResults(message);
       }
-      // Обработка видов писем
       if (this.state === "dialog_email_types") {
         return this.handleEmailTypes(message);
       }
-      // Обработка сегментации базы
       if (this.state === "dialog_email_segmentation") {
         return this.handleSegmentation(message);
       }
-      // Обработка целей рассылок
       if (this.state === "dialog_email_goals") {
         return this.handleGoals(message);
       }
-      // Обработка выбора CMS
       if (this.state === "dialog_email_cms") {
         return this.handleCMS(message);
       }
-  
       // Если состояние не определено, просим пользователя начать заново
       return {
         response: "Я не поняла ваш запрос. Пожалуйста, выберите один из предложенных вариантов.",
@@ -97,7 +88,7 @@ export class EmailLogic {
       this.state = "dialog_email_base";
       return {
         response:
-          `Поняла! Мы сфокусируемся на "${message}". Есть ли у вас база для рассылок или её нужно собрать? Также есть ли на сайте формы для сбора подписной базы? Если нет, нужно ли их добавить?`,
+          `Поняла! Мы сфокусируемся на "${message}". Есть ли у вас база для рассылок? Если нет, нужно ли добавить?`,
         quickReplies: ["Да", "Нет"],
         state: this.state,
       };
@@ -144,7 +135,7 @@ export class EmailLogic {
         this.state = "dialog_email_privacy_policy";
         return {
           response:
-            "Отлично! Мы учтем это при работе. Есть ли на сайте политика конфиденциальности? Или её нужно сделать?",
+            "Отлично! Мы учтем это при работе. Есть ли на сайте политика конфиденциальности?",
           quickReplies: ["Да", "Нет"],
           state: this.state,
         };
@@ -174,7 +165,7 @@ export class EmailLogic {
         return {
           response:
             "Отлично! Мы учтем её при работе. Через какой сервис отправлять рассылки? Или нужно подобрать подходящий?",
-          quickReplies: [],
+          quickReplies: ["UniSender", "Mindbox", "Sendsay", "DashaMail", "MailoPost"],
           state: this.state,
         };
       } else {
@@ -183,8 +174,8 @@ export class EmailLogic {
         this.state = "dialog_email_service";
         return {
           response:
-            "Поняла! В таком случае нужно создать политику конфиденциальности. Мы поможем вам с этим. Через какой сервис отправлять рассылки? Или нужно подобрать подходящий?",
-          quickReplies: [],
+            "Поняла! В таком случае нужно создать политику конфиденциальности. Мы поможем вам с этим. Через какой сервис отправлять рассылки?",
+          quickReplies: ["UniSender", "Mindbox", "Sendsay", "DashaMail", "MailoPost"],
           state: this.state,
         };
       }

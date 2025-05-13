@@ -1,5 +1,6 @@
 // Импортируем логику для работы с инструментами
 import { ToolsLogic } from "/services/tools.js";
+import { TextValidator } from "/services/text_validator.js";
 const toolLogic = new ToolsLogic();
 
 // Класс для обработки логики SEO-продвижения
@@ -23,23 +24,58 @@ export class SEOLogic {
      * @returns {object} - Ответ бота и следующее состояние
      */
     async handleMessage(message) {
-      // Обработка начального состояния диалога
-      if (this.state === "dialog_seo_start") {
-        return this.handleWebsiteAddress(message);
-      }
-      // Обработка анализа сайта
       if (this.state === "dialog_seo_analysis") {
+        const quickReplies = ["Есть возможность разово вложиться", "Нужна рассрочка"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleAnalysis(message);
       }
-      // Обработка бюджета
       if (this.state === "dialog_seo_budget") {
+        const quickReplies = ["До 60 тыс. рублей", "60-100 тыс. рублей", "Более 100 тыс. рублей"];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleBudget(message);
       }
-      // Обработка цели продвижения
       if (this.state === "dialog_seo_goal") {
+        const quickReplies = [
+          "Увеличение продаж с канала SEO",
+          "Повышение посещаемости сайта",
+          "Улучшение видимости в поисковых системах",
+          "Выход в ТОП по ключевым словам",
+        ];
+        const validation = TextValidator.validateText(message, quickReplies);
+        if (!validation.isValid) {
+          return {
+            response: validation.error,
+            quickReplies,
+            state: this.state,
+          };
+        }
         return this.handleGoal(message);
       }
-  
+      // Остальные шаги без quickReplies — обычная валидация
+      if (["dialog_seo_start"].includes(this.state)) {
+        if (!message || !message.trim()) {
+          return {
+            response: "Пожалуйста, введите адрес сайта.",
+            quickReplies: [],
+            state: this.state,
+          };
+        }
+        return this.handleWebsiteAddress(message);
+      }
       // Если состояние не определено, просим пользователя начать заново
       return {
         response: "Я не поняла ваш запрос. Пожалуйста, выберите один из предложенных вариантов.",
@@ -150,13 +186,11 @@ export class SEOLogic {
       this.context["budget"] = message;
       this.state = "dialog_seo_goal";
       return {
-        response:
-          "Какой основной цели вы хотите достичь с нашей помощью?",
+        response: "Какой бюджет вы планируете на SEO-продвижение? (в рублях)",
         quickReplies: [
-          "Увеличение продаж с канала SEO",
-          "Повышение посещаемости сайта",
-          "Улучшение видимости в поисковых системах",
-          "Выход в ТОП по ключевым словам",
+          "До 60 тыс. рублей",
+          "60-100 тыс. рублей",
+          "Более 100 тыс. рублей",
         ],
         state: this.state,
       };
